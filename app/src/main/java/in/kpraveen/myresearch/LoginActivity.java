@@ -27,13 +27,11 @@ import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -149,7 +147,6 @@ public class LoginActivity extends AppCompatActivity  {
                 JSONObject jsonBody = new JSONObject();
                 jsonBody.put("user", user);
                 jsonBody.put("password", password);
-                jsonBody.put("deviceToken", ApplicationData.deviceToken);
                 Log.d(ApplicationData.TAG, "postingData " + jsonBody.toString());
                 final String mRequestBody = jsonBody.toString();
                 StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
@@ -160,13 +157,15 @@ public class LoginActivity extends AppCompatActivity  {
                         Log.i(ApplicationData.TAG, "onResponse");
                         try {
                             JSONObject response = new JSONObject(str);
-                            SharedPreferences pref = getApplicationContext().getSharedPreferences("Login", 0); // 0 - for private mode
+                            SharedPreferences pref = getApplicationContext().getSharedPreferences("Application", 0); // 0 - for private mode
                             SharedPreferences.Editor editor = pref.edit();
                             editor.putBoolean("loggedIn", true);
                             editor.putString("username", response.getString("username"));
+                            editor.putString("userId", response.getString("userId"));
                             editor.putString("accessToken", response.getString("id"));
                             ApplicationData.accessToken = response.getString("id");
                             ApplicationData.username = response.getString("username");
+                            ApplicationData.userId = response.getString("userId");
                             editor.commit();
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             finish();
